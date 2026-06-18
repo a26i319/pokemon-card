@@ -10,236 +10,238 @@
   <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 
-<body data-state="loading">
+<body>
 
   <!-- =============================================
-       LOADING SCREEN — Phase 6
+       LOADING SCREEN — Phase 7
        ============================================= -->
-  <section id="loader" aria-label="Loading" role="status" aria-live="polite">
+  <section id="loading-screen" class="loading-screen" role="status" aria-live="polite">
+    <div class="loading-glow" aria-hidden="true"></div>
 
-    <div class="loader-glow" aria-hidden="true"></div>
+    <div class="loading-content">
+      <p class="loading-eyebrow">Secret Rare Generator</p>
+      <h1 class="loading-title">UNNECESSARY PROJECT</h1>
+      <p class="loading-version">v1.0</p>
 
-    <div class="loader-inner">
-
-      <!-- Brand -->
-      <div class="loader-brand">
-        <p class="loader-label">UNNECESSARY PROJECT</p>
-        <p class="loader-version">v1.1</p>
-      </div>
-
-      <div class="loader-rule" aria-hidden="true"></div>
-
-      <!-- Log lines -->
-      <ul class="loader-logs" aria-label="Loading steps">
-        <li class="loader-log" data-step="0">[✓] Initializing UI</li>
-        <li class="loader-log" data-step="1">[✓] Loading Sakura Theme</li>
-        <li class="loader-log" data-step="2">[✓] Generating Sparkles</li>
-        <li class="loader-log" data-step="3">[✓] Applying Holographic Foil</li>
-        <li class="loader-log" data-step="4">[✓] Creating Secret Rare Card</li>
-        <li class="loader-log" data-step="5">[✓] Detecting Special Person</li>
-        <li class="loader-log" data-step="6">[✓] Preparing Reveal Sequence</li>
+      <ul class="loading-log" id="loading-log" aria-hidden="true">
+        <!-- Populated by script.js -->
       </ul>
 
-      <!-- Progress -->
-      <div class="loader-progress-wrap">
-        <div
-          class="loader-bar"
-          role="progressbar"
-          aria-valuenow="0"
-          aria-valuemin="0"
-          aria-valuemax="100"
-        >
-          <div class="loader-bar-fill"></div>
+      <div class="loading-progress">
+        <div class="loading-progress-track">
+          <div class="loading-progress-fill" id="loading-progress-fill"></div>
         </div>
-        <span class="loader-pct" aria-label="Loading percentage">0%</span>
+        <span class="loading-progress-pct" id="loading-progress-pct">0%</span>
       </div>
-
     </div>
   </section>
 
   <!-- =============================================
-       SCENE — showcase environment
+       SCENE — showcase environment (Phase 5+)
        ============================================= -->
-  <main id="scene" aria-label="Card showcase">
+  <main id="scene">
 
-    <!-- =============================================
-         CARD — Secret Rare Trainer Card
-         ============================================= -->
-    <article id="card" class="card" aria-label="Secret Rare Trainer Card">
+    <!-- Ambient background layers — sit behind everything, never compete with the card -->
+    <div class="scene-backdrop" aria-hidden="true">
+      <span class="backdrop-glow backdrop-glow--a"></span>
+      <span class="backdrop-glow backdrop-glow--b"></span>
+      <span class="backdrop-glow backdrop-glow--c"></span>
+    </div>
+    <div class="scene-particles" id="scene-particles" aria-hidden="true"></div>
+    <div class="scene-sparkles" id="scene-sparkles" aria-hidden="true"></div>
 
-      <!-- ── Decorative corner accents ── -->
-      <div class="card-corner card-corner--tl" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 44 L4 10 Q4 4 10 4 L44 4" stroke="url(#g-tl)" stroke-width="2" stroke-linecap="round" fill="none"/>
-          <path d="M4 22 L4 10 Q4 4 10 4 L22 4" stroke="url(#g-tl)" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5"/>
-          <circle cx="7" cy="7" r="2" fill="url(#g-tl)"/>
-          <defs>
-            <linearGradient id="g-tl" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-              <stop offset="0%"   stop-color="#FFF8DC"/>
-              <stop offset="40%"  stop-color="#E8C14A"/>
-              <stop offset="100%" stop-color="#C9973A"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+    <!-- Reveal flash — one-shot, triggered after loading completes -->
+    <div class="reveal-flash" id="reveal-flash" aria-hidden="true"></div>
 
-      <div class="card-corner card-corner--tr" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M44 44 L44 10 Q44 4 38 4 L4 4" stroke="url(#g-tr)" stroke-width="2" stroke-linecap="round" fill="none"/>
-          <path d="M44 22 L44 10 Q44 4 38 4 L26 4" stroke="url(#g-tr)" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5"/>
-          <circle cx="41" cy="7" r="2" fill="url(#g-tr)"/>
-          <defs>
-            <linearGradient id="g-tr" x1="48" y1="0" x2="0" y2="48" gradientUnits="userSpaceOnUse">
-              <stop offset="0%"   stop-color="#FFF8DC"/>
-              <stop offset="40%"  stop-color="#E8C14A"/>
-              <stop offset="100%" stop-color="#C9973A"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+    <!-- Idle float stage — keeps the gentle bob separate from hover/tilt transforms -->
+    <div class="card-stage" id="card-stage">
 
-      <div class="card-corner card-corner--bl" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 4 L4 38 Q4 44 10 44 L44 44" stroke="url(#g-bl)" stroke-width="2" stroke-linecap="round" fill="none"/>
-          <path d="M4 26 L4 38 Q4 44 10 44 L22 44" stroke="url(#g-bl)" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5"/>
-          <circle cx="7" cy="41" r="2" fill="url(#g-bl)"/>
-          <defs>
-            <linearGradient id="g-bl" x1="0" y1="48" x2="48" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0%"   stop-color="#FFF8DC"/>
-              <stop offset="40%"  stop-color="#E8C14A"/>
-              <stop offset="100%" stop-color="#C9973A"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+      <!-- =============================================
+           CARD — Secret Rare Trainer Card
+           ============================================= -->
+      <article id="card" class="card card--hidden" aria-label="Secret Rare Trainer Card">
 
-      <div class="card-corner card-corner--br" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M44 4 L44 38 Q44 44 38 44 L4 44" stroke="url(#g-br)" stroke-width="2" stroke-linecap="round" fill="none"/>
-          <path d="M44 26 L44 38 Q44 44 38 44 L26 44" stroke="url(#g-br)" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5"/>
-          <circle cx="41" cy="41" r="2" fill="url(#g-br)"/>
-          <defs>
-            <linearGradient id="g-br" x1="48" y1="48" x2="0" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0%"   stop-color="#FFF8DC"/>
-              <stop offset="40%"  stop-color="#E8C14A"/>
-              <stop offset="100%" stop-color="#C9973A"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+        <!-- Gold foil outer border is the card background itself -->
 
-      <!-- ── Card inner surface ── -->
-      <div class="card-inner">
-
-        <!-- TOP BAR -->
-        <header class="card-topbar">
-          <span class="card-rarity-label">Secret Rare</span>
-          <span class="card-set-mark" aria-hidden="true">✦</span>
-          <div class="card-hp">
-            <span class="card-hp-label">HP</span>
-            <span class="card-hp-value">∞</span>
-          </div>
-        </header>
-
-        <!-- PORTRAIT -->
-        <div class="card-portrait-frame">
-          <div class="card-portrait">
-            <!--
-              ╔══════════════════════════════════════════╗
-              ║  YOUR PHOTO — edit src to swap image     ║
-              ║  Best: vertical portrait, face at top    ║
-              ╚══════════════════════════════════════════╝
-            -->
-            <img
-              id="portrait"
-              src="./assets/img/cuteness.jpeg"
-              alt="Trainer portrait"
-              onerror="this.closest('.card-portrait').classList.add('no-image')"
-            />
-
-            <div class="portrait-empty" aria-hidden="true">
-              <svg class="portrait-empty-icon" viewBox="0 0 56 56" fill="none">
-                <circle cx="28" cy="20" r="10" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M6 50 C6 37 15 31 28 31 C41 31 50 37 50 50" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              <p>Add your photo to<br><code>assets/img/</code></p>
-            </div>
-
-            <div class="portrait-frame-ring" aria-hidden="true"></div>
-            <div class="portrait-vignette"   aria-hidden="true"></div>
-            <div class="portrait-glow"       aria-hidden="true"></div>
-          </div>
-
-          <div class="portrait-fade" aria-hidden="true"></div>
-          <p class="card-watermark" aria-hidden="true">✦ ✦ ✦</p>
+        <!-- ── Decorative corner accents ── -->
+        <div class="card-corner card-corner--tl" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 44 L4 10 Q4 4 10 4 L44 4" stroke="url(#g-tl)" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M4 22 L4 10 Q4 4 10 4 L22 4" stroke="url(#g-tl)" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5"/>
+            <circle cx="7" cy="7" r="2" fill="url(#g-tl)"/>
+            <defs>
+              <linearGradient id="g-tl" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#FFF8DC"/>
+                <stop offset="40%"  stop-color="#E8C14A"/>
+                <stop offset="100%" stop-color="#C9973A"/>
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
 
-        <!-- INFO PANEL -->
-        <footer class="card-info">
+        <div class="card-corner card-corner--tr" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M44 44 L44 10 Q44 4 38 4 L4 4" stroke="url(#g-tr)" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M44 22 L44 10 Q44 4 38 4 L26 4" stroke="url(#g-tr)" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5"/>
+            <circle cx="41" cy="7" r="2" fill="url(#g-tr)"/>
+            <defs>
+              <linearGradient id="g-tr" x1="48" y1="0" x2="0" y2="48" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#FFF8DC"/>
+                <stop offset="40%"  stop-color="#E8C14A"/>
+                <stop offset="100%" stop-color="#C9973A"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
 
-          <div class="info-namerow">
-            <div class="info-name-block">
-              <!--
-                ╔═══════════════════════════════╗
-                ║  Edit trainer name & title    ║
-                ╚═══════════════════════════════╝
-              -->
-              <h1 class="trainer-name">Miles</h1>
-              <p class="trainer-title">Certified Distraction</p>
+        <div class="card-corner card-corner--bl" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 4 L4 38 Q4 44 10 44 L44 44" stroke="url(#g-bl)" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M4 26 L4 38 Q4 44 10 44 L22 44" stroke="url(#g-bl)" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5"/>
+            <circle cx="7" cy="41" r="2" fill="url(#g-bl)"/>
+            <defs>
+              <linearGradient id="g-bl" x1="0" y1="48" x2="48" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#FFF8DC"/>
+                <stop offset="40%"  stop-color="#E8C14A"/>
+                <stop offset="100%" stop-color="#C9973A"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="card-corner card-corner--br" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M44 4 L44 38 Q44 44 38 44 L4 44" stroke="url(#g-br)" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M44 26 L44 38 Q44 44 38 44 L26 44" stroke="url(#g-br)" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5"/>
+            <circle cx="41" cy="41" r="2" fill="url(#g-br)"/>
+            <defs>
+              <linearGradient id="g-br" x1="48" y1="48" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#FFF8DC"/>
+                <stop offset="40%"  stop-color="#E8C14A"/>
+                <stop offset="100%" stop-color="#C9973A"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <!-- ── Card inner surface ── -->
+        <div class="card-inner">
+
+          <!-- TOP BAR: rarity + set + HP -->
+          <header class="card-topbar">
+            <span class="card-rarity-label">Secret Rare</span>
+            <span class="card-set-mark" aria-hidden="true">✦</span>
+            <div class="card-hp">
+              <span class="card-hp-label">HP</span>
+              <span class="card-hp-value">∞</span>
             </div>
-            <div class="info-level-block" aria-label="Level">
-              <span class="level-label">LV.</span>
-              <span class="level-value">100</span>
-            </div>
-          </div>
+          </header>
 
-          <div class="info-badges" role="list" aria-label="Trainer status">
-            <span class="badge badge--type"   role="listitem">✿ Charm Type</span>
-            <span class="badge badge--status" role="listitem">● Active</span>
-            <span class="badge badge--rare"   role="listitem">★ 1 / 1</span>
-          </div>
-
-          <div class="info-divider" aria-hidden="true"></div>
-
-          <div class="info-abilities">
-            <div class="ability">
-              <div class="ability-header">
-                <span class="ability-cost" aria-label="Cost: 2">✦✦</span>
-                <span class="ability-name">Critical Charm</span>
-                <span class="ability-damage" aria-label="Damage">—</span>
+          <!-- PORTRAIT: hero image area -->
+          <div class="card-portrait-frame" id="portrait-frame">
+            <div class="card-portrait">
+              <img
+                id="portrait"
+                src="./assets/img/cuteness.jpeg"
+                alt="Trainer portrait"
+                onerror="this.closest('.card-portrait').classList.add('no-image')"
+              />
+              <!-- Fallback UI when no image present -->
+              <div class="portrait-empty" aria-hidden="true">
+                <svg class="portrait-empty-icon" viewBox="0 0 56 56" fill="none">
+                  <circle cx="28" cy="20" r="10" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M6 50 C6 37 15 31 28 31 C41 31 50 37 50 50" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <p>Drop <code>portrait.jpg</code><br>into <code>/assets</code></p>
               </div>
-              <p class="ability-text">Every smile has a chance to deal critical emotional damage.</p>
+
+              <!-- Portrait hover reaction sparkles spawn here -->
+              <div class="portrait-sparkles" id="portrait-sparkles" aria-hidden="true"></div>
             </div>
 
-            <div class="ability">
-              <div class="ability-header">
-                <span class="ability-cost" aria-label="Cost: 3">✦✦✦</span>
-                <span class="ability-name">Unavoidable Presence</span>
-                <span class="ability-damage" aria-label="Damage">∞</span>
+            <!-- Bottom fade — bleeds into info panel -->
+            <div class="portrait-fade" aria-hidden="true"></div>
+
+            <!-- Rarity watermark overlay -->
+            <p class="card-watermark" aria-hidden="true">✦ ✦ ✦</p>
+          </div>
+
+          <!-- INFO PANEL -->
+          <footer class="card-info">
+
+            <!-- Name + Level -->
+            <div class="info-namerow">
+              <div class="info-name-block">
+                <h1 class="trainer-name">Miles</h1>
+                <p class="trainer-title">Certified Distraction</p>
               </div>
-              <p class="ability-text">Naturally draws attention without making any effort. Difficult to ignore once encountered.</p>
+              <div class="info-level-block" aria-label="Level">
+                <span class="level-label">LV.</span>
+                <span class="level-value">100</span>
+              </div>
             </div>
-          </div>
 
-          <div class="info-divider" aria-hidden="true"></div>
+            <!-- Status badges -->
+            <div class="info-badges" role="list" aria-label="Trainer status">
+              <span class="badge badge--type" role="listitem">✿ Charm Type</span>
+              <span class="badge badge--status" role="listitem">● Active</span>
+              <span class="badge badge--rare" role="listitem">★ 1 / 1</span>
+            </div>
 
-          <blockquote class="card-flavor">
-            <p>"A one-of-one pull. The rarest find in any collection. Cherished forever."</p>
-          </blockquote>
+            <!-- Divider -->
+            <div class="info-divider" aria-hidden="true"></div>
 
-          <div class="card-meta" aria-hidden="true">
-            <span>Illus. Unnecessary Project</span>
-            <span>◆ Secret Rare</span>
-            <span>v1.1</span>
-          </div>
+            <!-- Abilities -->
+            <div class="info-abilities">
+              <div class="ability">
+                <div class="ability-header">
+                  <span class="ability-cost" aria-label="Cost: 2">✦✦</span>
+                  <span class="ability-name">Critical Charm</span>
+                  <span class="ability-damage" aria-label="Damage">—</span>
+                </div>
+                <p class="ability-text">Every smile has a chance to deal critical emotional damage.</p>
+              </div>
 
-        </footer>
+              <div class="ability">
+                <div class="ability-header">
+                  <span class="ability-cost" aria-label="Cost: 3">✦✦✦</span>
+                  <span class="ability-name">Unavoidable Presence</span>
+                  <span class="ability-damage" aria-label="Damage">∞</span>
+                </div>
+                <p class="ability-text">Naturally draws attention without making any effort. Difficult to ignore once encountered.</p>
+              </div>
+            </div>
 
-      </div><!-- /.card-inner -->
+            <!-- Divider -->
+            <div class="info-divider" aria-hidden="true"></div>
 
-    </article><!-- /#card -->
+            <!-- Flavor text -->
+            <blockquote class="card-flavor">
+              <p>"A one-of-one pull. The rarest find in any collection. Cherished forever."</p>
+            </blockquote>
 
-  </main><!-- /#scene -->
+            <!-- Card footer metadata -->
+            <div class="card-meta" aria-hidden="true">
+              <span>Illus. Unnecessary Project</span>
+              <span>◆ Secret Rare</span>
+              <span>v1.1</span>
+            </div>
+
+          </footer>
+
+        </div>
+
+        <!-- ── Holographic foil layer — ambient drift + pointer-tracked shimmer ── -->
+        <div class="card-foil" aria-hidden="true"></div>
+
+        <!-- ── Shine sweep — single diagonal light streak ── -->
+        <div class="card-shine" id="card-shine" aria-hidden="true"></div>
+
+      </article>
+
+    </div>
+
+  </main>
 
   <script src="./assets/js/script.js"></script>
 </body>

@@ -1,210 +1,262 @@
-/**
- * UNNECESSARY PROJECT v1.1
- * script.js — Phase 6: Loading screen + Reveal sequence
- *
- * Architecture:
- *   State    — body[data-state] drives all CSS visibility
- *   Loader   — steps log items, lerps progress bar
- *   Reveal   — flash → card entrance → idle float
- *
- * Phase 7 will add:
- *   CardTilt     — holographic mouse tracking
- *   Particles    — ambient background dots/petals
- *   Sparkles     — gold star bursts
- */
-
 'use strict';
 
-/* ─────────────────────────────────────────────────────────
-   CONFIG — all timing in one place
-───────────────────────────────────────────────────────── */
-const CONFIG = {
-  loader: {
-    stepInterval:  320,   // ms between each log line appearing
-    holdAfterDone: 320,   // ms to hold at 100% before revealing
-    progressLerp:  0.09,  // smoothing factor (lower = smoother)
-  },
-  reveal: {
-    loaderFade:    700,   // ms for loader to fade out
-    cardDelay:     400,   // ms after state=idle before card entrance starts
-    entranceDur:   1100,  // must match CSS animation duration
-    flashDur:      180,   // ms for the white flash to peak
-    flashFade:     650,   // ms for flash to fade out
-  },
-};
+/* ═══════════════════════════════════════════════════════════
+   UNNECESSARY PROJECT v1.0  ·  script.js
+   Phase 7 — Loading sequence → reveal animation → ambient scene
+              → holographic tilt → sparkle micro-interactions
+   ═══════════════════════════════════════════════════════════ */
+
+(() => {
+
+  /* ── Utilities ──────────────────────────────────────────── */
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const rand = (min, max) => Math.random() * (max - min) + min;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── Element refs ───────────────────────────────────────── */
+  const loadingScreen = $('#loading-screen');
+  const loadingLog = $('#loading-log');
+  const progressFill = $('#loading-progress-fill');
+  const progressPct = $('#loading-progress-pct');
+  const sceneParticles = $('#scene-particles');
+  const sceneSparkles = $('#scene-sparkles');
+  const revealFlash = $('#reveal-flash');
+  const card = $('#card');
+  const cardShine = $('#card-shine');
+  const portraitFrame = $('#portrait-frame');
+  const portraitSparkles = $('#portrait-sparkles');
+
+  const LOG_STEPS = [
+    'Initializing UI',
+    'Loading Sakura Theme',
+    'Generating Sparkles',
+    'Applying Holographic Foil',
+    'Creating Secret Rare Card',
+    'Detecting Special Person',
+    'Preparing Reveal Sequence',
+  ];
 
 
-/* ─────────────────────────────────────────────────────────
-   STATE — single source of truth
-───────────────────────────────────────────────────────── */
-const State = {
-  _current: 'loading',
+  /* ─────────────────────────────────────────────────────────
+     SPARKLES — generic one-shot twinkle spawner
+  ───────────────────────────────────────────────────────── */
+  function spawnSparkle(container, { x, y, size = 10, duration = 1.6, delay = 0 } = {}) {
+    const el = document.createElement('span');
+    el.className = 'sparkle';
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.style.width = el.style.height = `${size}px`;
+    el.style.setProperty('--sparkle-dur', `${duration}s`);
+    el.style.animationDelay = `${delay}s`;
+    container.appendChild(el);
 
-  set(next) {
-    this._current = next;
-    document.body.setAttribute('data-state', next);
-  },
+    requestAnimationFrame(() => el.classList.add('is-twinkling'));
+    el.addEventListener('animationend', () => el.remove(), { once: true });
+  }
 
-  get() {
-    return this._current;
-  },
-};
-
-
-/* ─────────────────────────────────────────────────────────
-   LOADER
-───────────────────────────────────────────────────────── */
-const Loader = (() => {
-  const logItems   = document.querySelectorAll('.loader-log');
-  const barFill    = document.querySelector('.loader-bar-fill');
-  const barEl      = document.querySelector('.loader-bar');
-  const pctEl      = document.querySelector('.loader-pct');
-
-  let target  = 0;
-  let current = 0;
-  let rafId   = null;
-
-  /* Lerp the progress bar smoothly toward target */
-  function tickProgress() {
-    current += (target - current) * CONFIG.loader.progressLerp;
-
-    const display = Math.min(100, Math.round(current));
-    barFill.style.width = `${current}%`;
-    barEl.setAttribute('aria-valuenow', display);
-    pctEl.textContent  = `${display}%`;
-
-    if (Math.abs(target - current) > 0.15) {
-      rafId = requestAnimationFrame(tickProgress);
-    } else {
-      /* Snap to exact target when close enough */
-      current = target;
-      barFill.style.width = `${target}%`;
-      pctEl.textContent   = `${target}%`;
+  function spawnSparkleBurst(container, count, bounds) {
+    if (prefersReducedMotion) return;
+    for (let i = 0; i < count; i++) {
+      spawnSparkle(container, {
+        x: rand(bounds.minX, bounds.maxX),
+        y: rand(bounds.minY, bounds.maxY),
+        size: rand(6, 14),
+        duration: rand(1.1, 1.9),
+        delay: rand(0, 0.5),
+      });
     }
   }
 
-  function setProgress(value) {
-    target = Math.max(0, Math.min(100, value));
-    cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(tickProgress);
+
+  /* ─────────────────────────────────────────────────────────
+     AMBIENT BACKGROUND PARTICLES — created once, loop forever
+  ───────────────────────────────────────────────────────── */
+  function initAmbientParticles() {
+    if (prefersReducedMotion || !sceneParticles) return;
+    const count = window.innerWidth < 640 ? 10 : 18;
+
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('span');
+      el.className = 'particle';
+      el.style.left = `${rand(0, 100)}%`;
+      el.style.setProperty('--particle-size', `${rand(3, 7)}px`);
+      el.style.setProperty('--particle-dur', `${rand(11, 20)}s`);
+      el.style.setProperty('--particle-delay', `${rand(0, 16)}s`);
+      el.style.setProperty('--particle-drift', `${rand(-40, 40)}px`);
+      sceneParticles.appendChild(el);
+    }
   }
 
-  /* Reveal log items one by one, driving progress as we go */
-  function runSteps(onComplete) {
-    const total    = logItems.length;
-    const perStep  = 92 / total;  /* reserve last 8% for snap-to-100 */
 
-    logItems.forEach((item, i) => {
-      setTimeout(() => {
+  /* ─────────────────────────────────────────────────────────
+     LOADING SEQUENCE
+  ───────────────────────────────────────────────────────── */
+  function buildLogLines() {
+    LOG_STEPS.forEach((label) => {
+      const li = document.createElement('li');
+      li.className = 'log-line';
+      li.innerHTML = `<span class="log-check">○</span><span class="log-text">${label}</span>`;
+      loadingLog.appendChild(li);
+    });
+    return Array.from(loadingLog.querySelectorAll('.log-line'));
+  }
 
-        /* Mark previous item done */
-        if (i > 0) {
-          logItems[i - 1].classList.remove('is-active');
-          logItems[i - 1].classList.add('is-done');
-        }
+  function runLoadingSequence(onComplete) {
+    const lines = buildLogLines();
+    const duration = prefersReducedMotion ? 500 : rand(2400, 3400);
+    const start = performance.now();
+    let nextStepIndex = 0;
 
-        /* Activate current item */
-        item.classList.add('is-active');
-        setProgress(Math.round((i + 1) * perStep));
+    function tick(now) {
+      const ratio = Math.min((now - start) / duration, 1);
+      const pct = Math.round(ratio * 100);
+      progressFill.style.width = `${pct}%`;
+      progressPct.textContent = `${pct}%`;
 
-        /* Last item — snap to 100, then call back */
-        if (i === total - 1) {
-          setTimeout(() => {
-            item.classList.remove('is-active');
-            item.classList.add('is-done');
-            setProgress(100);
+      const stepThreshold = (nextStepIndex + 1) / LOG_STEPS.length;
+      if (ratio >= stepThreshold && nextStepIndex < lines.length) {
+        const line = lines[nextStepIndex];
+        line.classList.add('is-done');
+        line.querySelector('.log-check').textContent = '✓';
+        nextStepIndex++;
+      }
 
-            setTimeout(onComplete, CONFIG.loader.holdAfterDone);
-          }, CONFIG.loader.stepInterval);
-        }
+      if (ratio < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        setTimeout(() => {
+          loadingScreen.classList.add('is-hidden');
+          setTimeout(onComplete, prefersReducedMotion ? 50 : 650);
+        }, prefersReducedMotion ? 50 : 400);
+      }
+    }
 
-      }, i * CONFIG.loader.stepInterval);
+    requestAnimationFrame(tick);
+  }
+
+
+  /* ─────────────────────────────────────────────────────────
+     REVEAL SEQUENCE
+     flash → sparkles emerge → card scales in → holo sweep → idle float
+  ───────────────────────────────────────────────────────── */
+  function revealCard() {
+    // 1 & 2 — loading screen has already faded by the time this runs.
+
+    // 3 — soft flash
+    if (!prefersReducedMotion) {
+      revealFlash.classList.add('is-flashing');
+    }
+
+    // 4 — sparkles emerge around the card
+    const rect = card.getBoundingClientRect();
+    const sceneRect = card.closest('#scene').getBoundingClientRect();
+    spawnSparkleBurst(sceneSparkles, prefersReducedMotion ? 0 : 14, {
+      minX: rect.left - sceneRect.left - 20,
+      maxX: rect.right - sceneRect.left + 20,
+      minY: rect.top - sceneRect.top - 20,
+      maxY: rect.bottom - sceneRect.top + 20,
+    });
+
+    // 5 — card scales into view
+    card.classList.remove('card--hidden');
+    card.classList.add('card--visible');
+
+    const finishReveal = () => {
+      // Release the reveal animation's frozen transform back to the
+      // --lift/--rx hover vars defined on the base .card rule.
+      card.classList.remove('card--visible');
+      card.classList.add('card--settled');
+
+      // 6 — holographic sweep crosses the card, once
+      cardShine.classList.add('is-sweeping');
+      cardShine.addEventListener('animationend', () => {
+        cardShine.classList.remove('is-sweeping');
+        cardShine.classList.add('is-idle'); // gentle ambient repeat afterwards
+      }, { once: true });
+
+      // 7 — idle floating animation is already running on .card-stage;
+      // enable pointer interactions now that the card has settled.
+      initCardTilt();
+      initPortraitSparkles();
+    };
+
+    if (prefersReducedMotion) {
+      finishReveal();
+    } else {
+      card.addEventListener('animationend', finishReveal, { once: true });
+    }
+  }
+
+
+  /* ─────────────────────────────────────────────────────────
+     POINTER-TRACKED HOLOGRAPHIC TILT
+  ───────────────────────────────────────────────────────── */
+  function initCardTilt() {
+    if (prefersReducedMotion || !window.matchMedia('(hover: hover)').matches) return;
+    const foil = $('.card-foil', card);
+    const MAX_TILT = 7; // degrees
+
+    function handleMove(e) {
+      const rect = card.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width;  // 0 → 1, left to right
+      const py = (e.clientY - rect.top) / rect.height;  // 0 → 1, top to bottom
+
+      // --rx feeds rotateY() (horizontal cursor position tilts left/right)
+      // --ry feeds rotateX() (vertical cursor position tilts up/down)
+      const rxValue = (px - 0.5) * MAX_TILT * 2;
+      const ryValue = (0.5 - py) * MAX_TILT * 2;
+
+      card.style.setProperty('--rx', `${rxValue}deg`);
+      card.style.setProperty('--ry', `${ryValue}deg`);
+
+      card.classList.add('is-tracking');
+      if (foil) foil.style.backgroundPosition = `${px * 100}% ${py * 100}%`;
+    }
+
+    function handleLeave() {
+      card.style.setProperty('--rx', '0deg');
+      card.style.setProperty('--ry', '0deg');
+      card.classList.remove('is-tracking');
+      if (foil) foil.style.backgroundPosition = '';
+    }
+
+    card.addEventListener('mousemove', handleMove);
+    card.addEventListener('mouseleave', handleLeave);
+  }
+
+
+  /* ─────────────────────────────────────────────────────────
+     PORTRAIT HOVER — sparkle reaction
+  ───────────────────────────────────────────────────────── */
+  function initPortraitSparkles() {
+    if (prefersReducedMotion || !portraitFrame) return;
+    let burstTimer = null;
+
+    function burst() {
+      const rect = portraitFrame.getBoundingClientRect();
+      spawnSparkle(portraitSparkles, {
+        x: rand(rect.width * 0.15, rect.width * 0.85),
+        y: rand(rect.height * 0.15, rect.height * 0.85),
+        size: rand(7, 13),
+        duration: rand(1, 1.5),
+      });
+    }
+
+    portraitFrame.addEventListener('mouseenter', () => {
+      for (let i = 0; i < 4; i++) setTimeout(burst, i * 90);
+      burstTimer = setInterval(burst, 750);
+    });
+
+    portraitFrame.addEventListener('mouseleave', () => {
+      clearInterval(burstTimer);
     });
   }
 
-  function start(onComplete) {
-    setProgress(4);   /* tiny initial nudge so bar isn't dead */
-    runSteps(onComplete);
-  }
 
-  return { start };
-})();
-
-
-/* ─────────────────────────────────────────────────────────
-   REVEAL
-───────────────────────────────────────────────────────── */
-const Reveal = (() => {
-  const card = document.getElementById('card');
-
-  /* 1 — Loader fades → scene fades in */
-  function begin() {
-    State.set('revealing');
-
-    setTimeout(() => {
-      State.set('idle');
-      flashScene();
-
-      /* 2 — Card entrance starts after scene is visible */
-      setTimeout(entranceCard, CONFIG.reveal.cardDelay);
-
-    }, CONFIG.reveal.loaderFade);
-  }
-
-  /* Soft full-screen flash — the "pack opening" moment */
-  function flashScene() {
-    const flash = document.createElement('div');
-    Object.assign(flash.style, {
-      position:   'fixed',
-      inset:      '0',
-      zIndex:     '90',
-      pointerEvents: 'none',
-      opacity:    '0',
-      background: 'radial-gradient(ellipse 55% 55% at 50% 50%, hsla(330, 60%, 96%, 0.75), transparent 80%)',
-      transition: `opacity ${CONFIG.reveal.flashDur}ms ease`,
-    });
-    document.body.appendChild(flash);
-
-    /* Peak */
-    requestAnimationFrame(() => {
-      flash.style.opacity = '1';
-
-      /* Fade out */
-      setTimeout(() => {
-        flash.style.opacity    = '0';
-        flash.style.transition = `opacity ${CONFIG.reveal.flashFade}ms ease`;
-        setTimeout(() => flash.remove(), CONFIG.reveal.flashFade + 50);
-      }, CONFIG.reveal.flashDur);
-    });
-  }
-
-  /* Card scales into view */
-  function entranceCard() {
-    card.classList.add('is-revealed');
-
-    /* After entrance animation finishes → hand off to idle */
-    setTimeout(() => {
-      card.classList.remove('is-revealed');
-      card.classList.add('is-idle');
-    }, CONFIG.reveal.entranceDur);
-  }
-
-  return { begin };
-})();
-
-
-/* ─────────────────────────────────────────────────────────
-   INIT
-───────────────────────────────────────────────────────── */
-function init() {
-  Loader.start(() => {
-    Reveal.begin();
+  /* ── Boot ───────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    initAmbientParticles();
+    runLoadingSequence(revealCard);
   });
-}
 
-/* Start when DOM is ready */
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+})();
