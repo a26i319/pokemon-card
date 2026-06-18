@@ -10,19 +10,62 @@
   <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 
-<body>
+<body data-state="loading">
 
   <!-- =============================================
-       SCENE — showcase environment (Phase 5+)
+       LOADING SCREEN — Phase 6
        ============================================= -->
-  <main id="scene">
+  <section id="loader" aria-label="Loading" role="status" aria-live="polite">
+
+    <div class="loader-glow" aria-hidden="true"></div>
+
+    <div class="loader-inner">
+
+      <!-- Brand -->
+      <div class="loader-brand">
+        <p class="loader-label">UNNECESSARY PROJECT</p>
+        <p class="loader-version">v1.1</p>
+      </div>
+
+      <div class="loader-rule" aria-hidden="true"></div>
+
+      <!-- Log lines -->
+      <ul class="loader-logs" aria-label="Loading steps">
+        <li class="loader-log" data-step="0">[✓] Initializing UI</li>
+        <li class="loader-log" data-step="1">[✓] Loading Sakura Theme</li>
+        <li class="loader-log" data-step="2">[✓] Generating Sparkles</li>
+        <li class="loader-log" data-step="3">[✓] Applying Holographic Foil</li>
+        <li class="loader-log" data-step="4">[✓] Creating Secret Rare Card</li>
+        <li class="loader-log" data-step="5">[✓] Detecting Special Person</li>
+        <li class="loader-log" data-step="6">[✓] Preparing Reveal Sequence</li>
+      </ul>
+
+      <!-- Progress -->
+      <div class="loader-progress-wrap">
+        <div
+          class="loader-bar"
+          role="progressbar"
+          aria-valuenow="0"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <div class="loader-bar-fill"></div>
+        </div>
+        <span class="loader-pct" aria-label="Loading percentage">0%</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =============================================
+       SCENE — showcase environment
+       ============================================= -->
+  <main id="scene" aria-label="Card showcase">
 
     <!-- =============================================
          CARD — Secret Rare Trainer Card
          ============================================= -->
     <article id="card" class="card" aria-label="Secret Rare Trainer Card">
-
-      <!-- Gold foil outer border is the card background itself -->
 
       <!-- ── Decorative corner accents ── -->
       <div class="card-corner card-corner--tl" aria-hidden="true">
@@ -88,7 +131,7 @@
       <!-- ── Card inner surface ── -->
       <div class="card-inner">
 
-        <!-- TOP BAR: rarity + set + HP -->
+        <!-- TOP BAR -->
         <header class="card-topbar">
           <span class="card-rarity-label">Secret Rare</span>
           <span class="card-set-mark" aria-hidden="true">✦</span>
@@ -98,64 +141,66 @@
           </div>
         </header>
 
-        <!-- PORTRAIT: hero image area — ~68% of card height -->
-        <!-- Phase 5 will flesh this out fully -->
+        <!-- PORTRAIT -->
         <div class="card-portrait-frame">
           <div class="card-portrait">
+            <!--
+              ╔══════════════════════════════════════════╗
+              ║  YOUR PHOTO — edit src to swap image     ║
+              ║  Best: vertical portrait, face at top    ║
+              ╚══════════════════════════════════════════╝
+            -->
             <img
               id="portrait"
               src="./assets/img/cuteness.jpeg"
               alt="Trainer portrait"
               onerror="this.closest('.card-portrait').classList.add('no-image')"
             />
-            <!-- Fallback UI when no image present -->
+
             <div class="portrait-empty" aria-hidden="true">
               <svg class="portrait-empty-icon" viewBox="0 0 56 56" fill="none">
                 <circle cx="28" cy="20" r="10" stroke="currentColor" stroke-width="1.5"/>
                 <path d="M6 50 C6 37 15 31 28 31 C41 31 50 37 50 50" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
-              <p>Drop <code>portrait.jpg</code><br>into <code>/assets</code></p>
+              <p>Add your photo to<br><code>assets/img/</code></p>
             </div>
+
+            <div class="portrait-frame-ring" aria-hidden="true"></div>
+            <div class="portrait-vignette"   aria-hidden="true"></div>
+            <div class="portrait-glow"       aria-hidden="true"></div>
           </div>
 
-          <!-- Bottom fade — bleeds into info panel -->
           <div class="portrait-fade" aria-hidden="true"></div>
-
-          <!-- Rarity watermark overlay -->
           <p class="card-watermark" aria-hidden="true">✦ ✦ ✦</p>
         </div>
 
         <!-- INFO PANEL -->
         <footer class="card-info">
 
-          <!-- Name + Level -->
           <div class="info-namerow">
             <div class="info-name-block">
+              <!--
+                ╔═══════════════════════════════╗
+                ║  Edit trainer name & title    ║
+                ╚═══════════════════════════════╝
+              -->
               <h1 class="trainer-name">Miles</h1>
               <p class="trainer-title">Certified Distraction</p>
             </div>
             <div class="info-level-block" aria-label="Level">
               <span class="level-label">LV.</span>
-              <!--
-                ┌─────────────────────────┐
-                │  Edit level value here  │
-                └─────────────────────────┘
-              -->
               <span class="level-value">100</span>
             </div>
           </div>
 
-          <!-- Status badges -->
           <div class="info-badges" role="list" aria-label="Trainer status">
-            <span class="badge badge--type" role="listitem">✿ Charm Type</span>
+            <span class="badge badge--type"   role="listitem">✿ Charm Type</span>
             <span class="badge badge--status" role="listitem">● Active</span>
-            <span class="badge badge--rare" role="listitem">★ 1 / 1</span>
+            <span class="badge badge--rare"   role="listitem">★ 1 / 1</span>
           </div>
 
-          <!-- Divider -->
           <div class="info-divider" aria-hidden="true"></div>
 
-          <!-- Abilities -->
           <div class="info-abilities">
             <div class="ability">
               <div class="ability-header">
@@ -176,20 +221,12 @@
             </div>
           </div>
 
-          <!-- Divider -->
           <div class="info-divider" aria-hidden="true"></div>
 
-          <!-- Flavor text -->
           <blockquote class="card-flavor">
-            <!--
-              ┌─────────────────────────────────────────┐
-              │  Edit flavor text — keep it poetic      │
-              └─────────────────────────────────────────┘
-            -->
             <p>"A one-of-one pull. The rarest find in any collection. Cherished forever."</p>
           </blockquote>
 
-          <!-- Card footer metadata -->
           <div class="card-meta" aria-hidden="true">
             <span>Illus. Unnecessary Project</span>
             <span>◆ Secret Rare</span>
@@ -198,11 +235,11 @@
 
         </footer>
 
-      </div>
+      </div><!-- /.card-inner -->
 
-    </article>
+    </article><!-- /#card -->
 
-  </main>
+  </main><!-- /#scene -->
 
   <script src="./assets/js/script.js"></script>
 </body>
