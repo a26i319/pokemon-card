@@ -518,7 +518,13 @@ ul, ol { list-style: none; }
   gap: var(--sp-2);
   padding: var(--sp-2) var(--sp-3);
   background: linear-gradient(180deg, transparent 0%, hsla(340,30%,97%,.55) 30%);
+  overflow-y: auto;
 }
+
+.card-info::-webkit-scrollbar {
+  display: none;
+}
+
 .info-namerow {
   display: flex;
   align-items: flex-end;
