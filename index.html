@@ -17,16 +17,11 @@
        ============================================= -->
   <section id="loading-screen" class="loading-screen" role="status" aria-live="polite">
     <div class="loading-glow" aria-hidden="true"></div>
-
     <div class="loading-content">
       <p class="loading-eyebrow">Secret Rare Generator</p>
       <h1 class="loading-title">UNNECESSARY PROJECT</h1>
       <p class="loading-version">v1.0</p>
-
-      <ul class="loading-log" id="loading-log" aria-hidden="true">
-        <!-- Populated by script.js -->
-      </ul>
-
+      <ul class="loading-log" id="loading-log" aria-hidden="true"></ul>
       <div class="loading-progress">
         <div class="loading-progress-track">
           <div class="loading-progress-fill" id="loading-progress-fill"></div>
@@ -37,11 +32,17 @@
   </section>
 
   <!-- =============================================
-       SCENE — showcase environment (Phase 5+)
+       PHASE 9 — Sakura Petal Rain canvas
+       Full-screen, sits behind the scene, never blocks interaction
+       ============================================= -->
+  <canvas id="petal-canvas" aria-hidden="true"></canvas>
+
+  <!-- =============================================
+       SCENE — showcase environment
        ============================================= -->
   <main id="scene">
 
-    <!-- Ambient background layers — sit behind everything, never compete with the card -->
+    <!-- Ambient blurred colour blobs -->
     <div class="scene-backdrop" aria-hidden="true">
       <span class="backdrop-glow backdrop-glow--a"></span>
       <span class="backdrop-glow backdrop-glow--b"></span>
@@ -50,10 +51,10 @@
     <div class="scene-particles" id="scene-particles" aria-hidden="true"></div>
     <div class="scene-sparkles" id="scene-sparkles" aria-hidden="true"></div>
 
-    <!-- Reveal flash — one-shot, triggered after loading completes -->
+    <!-- One-shot reveal flash -->
     <div class="reveal-flash" id="reveal-flash" aria-hidden="true"></div>
 
-    <!-- Idle float stage — keeps the gentle bob separate from hover/tilt transforms -->
+    <!-- Idle float wrapper -->
     <div class="card-stage" id="card-stage">
 
       <!-- =============================================
@@ -61,9 +62,7 @@
            ============================================= -->
       <article id="card" class="card card--hidden" aria-label="Secret Rare Trainer Card">
 
-        <!-- Gold foil outer border is the card background itself -->
-
-        <!-- ── Decorative corner accents ── -->
+        <!-- Decorative corner accents -->
         <div class="card-corner card-corner--tl" aria-hidden="true">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4 44 L4 10 Q4 4 10 4 L44 4" stroke="url(#g-tl)" stroke-width="2" stroke-linecap="round" fill="none"/>
@@ -124,10 +123,10 @@
           </svg>
         </div>
 
-        <!-- ── Card inner surface ── -->
+        <!-- Card inner surface -->
         <div class="card-inner">
 
-          <!-- TOP BAR: rarity + set + HP -->
+          <!-- TOP BAR -->
           <header class="card-topbar">
             <span class="card-rarity-label">Secret Rare</span>
             <span class="card-set-mark" aria-hidden="true">✦</span>
@@ -137,7 +136,7 @@
             </div>
           </header>
 
-          <!-- PORTRAIT: hero image area -->
+          <!-- PORTRAIT -->
           <div class="card-portrait-frame" id="portrait-frame">
             <div class="card-portrait">
               <img
@@ -146,32 +145,28 @@
                 alt="Trainer portrait"
                 onerror="this.closest('.card-portrait').classList.add('no-image')"
               />
-              <!-- Fallback UI when no image present -->
               <div class="portrait-empty" aria-hidden="true">
                 <svg class="portrait-empty-icon" viewBox="0 0 56 56" fill="none">
                   <circle cx="28" cy="20" r="10" stroke="currentColor" stroke-width="1.5"/>
                   <path d="M6 50 C6 37 15 31 28 31 C41 31 50 37 50 50" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
-                <p>Drop <code>portrait.jpg</code><br>into <code>/assets</code></p>
+                <p>Drop <code>portrait.jpg</code><br>into <code>/assets/img</code></p>
               </div>
-
-              <!-- Portrait hover reaction sparkles spawn here -->
               <div class="portrait-sparkles" id="portrait-sparkles" aria-hidden="true"></div>
             </div>
-
-            <!-- Bottom fade — bleeds into info panel -->
             <div class="portrait-fade" aria-hidden="true"></div>
-
-            <!-- Rarity watermark overlay -->
             <p class="card-watermark" aria-hidden="true">✦ ✦ ✦</p>
           </div>
 
           <!-- INFO PANEL -->
           <footer class="card-info">
-
-            <!-- Name + Level -->
             <div class="info-namerow">
               <div class="info-name-block">
+                <!--
+                  ┌──────────────────────────────┐
+                  │  Edit trainer name + title   │
+                  └──────────────────────────────┘
+                -->
                 <h1 class="trainer-name">Miles</h1>
                 <p class="trainer-title">Certified Distraction</p>
               </div>
@@ -181,17 +176,14 @@
               </div>
             </div>
 
-            <!-- Status badges -->
             <div class="info-badges" role="list" aria-label="Trainer status">
               <span class="badge badge--type" role="listitem">✿ Charm Type</span>
               <span class="badge badge--status" role="listitem">● Active</span>
               <span class="badge badge--rare" role="listitem">★ 1 / 1</span>
             </div>
 
-            <!-- Divider -->
             <div class="info-divider" aria-hidden="true"></div>
 
-            <!-- Abilities -->
             <div class="info-abilities">
               <div class="ability">
                 <div class="ability-header">
@@ -201,7 +193,6 @@
                 </div>
                 <p class="ability-text">Every smile has a chance to deal critical emotional damage.</p>
               </div>
-
               <div class="ability">
                 <div class="ability-header">
                   <span class="ability-cost" aria-label="Cost: 3">✦✦✦</span>
@@ -212,36 +203,68 @@
               </div>
             </div>
 
-            <!-- Divider -->
             <div class="info-divider" aria-hidden="true"></div>
 
-            <!-- Flavor text -->
             <blockquote class="card-flavor">
+              <!--
+                ┌─────────────────────────────────────────┐
+                │  Edit flavor text — keep it poetic      │
+                └─────────────────────────────────────────┘
+              -->
               <p>"A one-of-one pull. The rarest find in any collection. Cherished forever."</p>
             </blockquote>
 
-            <!-- Card footer metadata -->
             <div class="card-meta" aria-hidden="true">
               <span>Illus. Unnecessary Project</span>
               <span>◆ Secret Rare</span>
-              <span>v1.1</span>
+              <span>v1.0</span>
             </div>
-
           </footer>
 
         </div>
 
-        <!-- ── Holographic foil layer — ambient drift + pointer-tracked shimmer ── -->
+        <!-- Holographic foil overlay -->
         <div class="card-foil" aria-hidden="true"></div>
 
-        <!-- ── Shine sweep — single diagonal light streak ── -->
+        <!-- Diagonal shine sweep -->
         <div class="card-shine" id="card-shine" aria-hidden="true"></div>
 
       </article>
 
     </div>
-
   </main>
+
+  <!-- =============================================
+       PHASE 9 — Sound toggle
+       ============================================= -->
+  <button
+    type="button"
+    id="sound-toggle"
+    class="sound-toggle is-muted"
+    aria-pressed="true"
+    aria-label="Unmute background music"
+  >
+    <!-- Icon: sound ON -->
+    <svg class="sound-icon sound-icon--on" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 9v6h4l5 5V4L8 9H4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M16.5 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M19.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    </svg>
+    <!-- Icon: sound OFF / muted -->
+    <svg class="sound-icon sound-icon--off" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 9v6h4l5 5V4L8 9H4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <line x1="16" y1="9" x2="21" y2="15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="21" y1="9" x2="16" y2="15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <!--
+    ┌──────────────────────────────────────────────────────┐
+    │  Place your music file at: ./assets/audio/theme.mp3  │
+    │  Any soft ambient / lo-fi / dreamy track works well. │
+    └──────────────────────────────────────────────────────┘
+  -->
+  <audio id="bg-music" src="./assets/audio/her.mp3" loop preload="auto"></audio>
 
   <script src="./assets/js/script.js"></script>
 </body>
